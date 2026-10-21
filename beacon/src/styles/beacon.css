@@ -2144,7 +2144,7 @@ a:focus:not(:focus-visible) {
 .sidebar-logo img { display: none !important; }
 .sidebar-logo::after {
   content: 'ACE';
-  font-size: 28px;
+  font-size: 20px;
   line-height: 1;
   font-weight: 700;
   color: var(--accent);
