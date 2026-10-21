@@ -1,4 +1,5 @@
-
+   > **This is a personal fork of [Beacon](https://github.com/asachs01/beacon) by [Aaron Sachs](https://github.com/asachs01).**
+   > The only change is custom fonts. All credit for Beacon goes to the original project. Please star, report issues and support development there.
 
 <p align="center">
   <img src="src/assets/beacon-logo-main.png" alt="Beacon" width="280" />
