@@ -7,6 +7,7 @@ import { useWeather } from './hooks/useWeather';
 import { useChores } from './hooks/useChores';
 import { Clock } from './components/Clock';
 import { WeekCalendar } from './components/WeekCalendar';
+import { MonthCalendar, CalendarModeToggle, type CalendarMode } from './components/MonthCalendar';
 import { DashboardView } from './components/DashboardView';
 import { EventModal, EventFormData } from './components/EventModal';
 import { FamilyFilter } from './components/FamilyFilter';
@@ -39,6 +40,7 @@ import { getConfig, patchConfig } from './config';
 import { I18nContext, createI18n } from './i18n';
 
 const config = getConfig();
+const CALENDAR_MODE_KEY = 'beacon-calendar-mode';
 
 export function App() {
   const auth = useHaAuth();
@@ -193,20 +195,53 @@ export function App() {
     setFocusMemberId(memberId);
   }, []);
 
-  // Visible week shown by the calendar (drives event fetch window)
-  const [visibleWeekStart, setVisibleWeekStart] = useState<Date>(() =>
-    startOfWeek(new Date(), { weekStartsOn: settings.weekStartsOn }),
-  );
+  // Visible date range shown by the calendar (drives event fetch window).
+  // Week view reports a 7-day range; month view reports its whole grid.
+  const [visibleRange, setVisibleRange] = useState<{ start: Date; end: Date }>(() => {
+    const start = startOfWeek(new Date(), { weekStartsOn: settings.weekStartsOn });
+    return { start, end: addDays(start, 7) };
+  });
+  const setVisibleWeekStart = useCallback((weekStart: Date) => {
+    setVisibleRange({ start: weekStart, end: addDays(weekStart, 7) });
+  }, []);
+  const handleVisibleRangeChange = useCallback((start: Date, end: Date) => {
+    setVisibleRange({ start, end });
+  }, []);
+
+  // Calendar tab: week or month view (remembered on this device)
+  const [calendarMode, setCalendarModeState] = useState<CalendarMode>(() => {
+    try {
+      return localStorage.getItem(CALENDAR_MODE_KEY) === 'month' ? 'month' : 'week';
+    } catch {
+      return 'week';
+    }
+  });
+  // Week to open when drilling into a day from the month view
+  const [weekViewDate, setWeekViewDate] = useState<Date | undefined>(undefined);
+  const setCalendarMode = useCallback((mode: CalendarMode) => {
+    setCalendarModeState(mode);
+    setWeekViewDate(undefined);
+    try {
+      localStorage.setItem(CALENDAR_MODE_KEY, mode);
+    } catch {
+      // localStorage unavailable
+    }
+  }, []);
+  const handleOpenWeekFromMonth = useCallback((day: Date) => {
+    // Temporary drill-down: the saved preference stays "month"
+    setWeekViewDate(day);
+    setCalendarModeState('week');
+  }, []);
 
   // Day currently selected on the Dashboard's day view
   const [dashboardDate, setDashboardDate] = useState<Date>(() => startOfDay(new Date()));
 
-  // Helper: refetch events for a given week, with one extra day on either side
-  // so multi-day events that bleed in/out of the visible week still render.
-  const refetchEventsForWeek = useCallback(
-    async (weekStart: Date) => {
-      const rangeStart = addDays(weekStart, -1);
-      const rangeEnd = addDays(weekStart, 8);
+  // Helper: refetch events for the visible range, with one extra day on either
+  // side so multi-day events that bleed in/out of the range still render.
+  const refetchEventsForRange = useCallback(
+    async (range: { start: Date; end: Date }) => {
+      const rangeStart = addDays(range.start, -1);
+      const rangeEnd = addDays(range.end, 1);
       await fetchEvents(rangeStart.toISOString(), rangeEnd.toISOString());
     },
     [fetchEvents],
@@ -225,23 +260,23 @@ export function App() {
 
     const loadData = async () => {
       await fetchCalendars();
-      await refetchEventsForWeek(visibleWeekStart);
+      await refetchEventsForRange(visibleRange);
     };
 
     loadData();
 
     // Refresh every 5 minutes for the currently-visible week
     const interval = setInterval(() => {
-      refetchEventsForWeek(visibleWeekStart);
+      refetchEventsForRange(visibleRange);
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [connected, fetchCalendars, refetchEventsForWeek, visibleWeekStart]);
+  }, [connected, fetchCalendars, refetchEventsForRange, visibleRange]);
 
   // Re-fetch when calendar colors or family members change so colors update
   // immediately, without recreating the 5-minute polling interval above.
-  const colorRefreshRef = useRef({ connected, fetchCalendars, refetchEventsForWeek, visibleWeekStart });
-  colorRefreshRef.current = { connected, fetchCalendars, refetchEventsForWeek, visibleWeekStart };
+  const colorRefreshRef = useRef({ connected, fetchCalendars, refetchEventsForRange, visibleRange });
+  colorRefreshRef.current = { connected, fetchCalendars, refetchEventsForRange, visibleRange };
   const didColorRefreshMount = useRef(false);
   useEffect(() => {
     if (!didColorRefreshMount.current) {
@@ -250,7 +285,7 @@ export function App() {
     }
     if (!colorRefreshRef.current.connected) return;
     colorRefreshRef.current.fetchCalendars();
-    colorRefreshRef.current.refetchEventsForWeek(colorRefreshRef.current.visibleWeekStart);
+    colorRefreshRef.current.refetchEventsForRange(colorRefreshRef.current.visibleRange);
   }, [settings.calendarColors, members]);
 
   const handleToggleCalendar = useCallback((calendarId: string) => {
@@ -354,7 +389,7 @@ export function App() {
         await createEvent(calendarId, eventData);
       }
 
-      await refetchEventsForWeek(visibleWeekStart);
+      await refetchEventsForRange(visibleRange);
 
       handleCloseModal();
     } catch (err) {
@@ -363,7 +398,7 @@ export function App() {
       // instead of the save silently appearing to do nothing.
       throw err;
     }
-  }, [selectedEvent, createEvent, updateEvent, deleteEvent, refetchEventsForWeek, visibleWeekStart, handleCloseModal]);
+  }, [selectedEvent, createEvent, updateEvent, deleteEvent, refetchEventsForRange, visibleRange, handleCloseModal]);
 
   const handleDeleteEvent = useCallback(async (calendarId: string, eventId: string) => {
     try {
@@ -372,7 +407,7 @@ export function App() {
       }
       await deleteEvent(calendarId, eventId);
 
-      await refetchEventsForWeek(visibleWeekStart);
+      await refetchEventsForRange(visibleRange);
 
       handleCloseModal();
     } catch (err) {
@@ -381,7 +416,7 @@ export function App() {
         ? new Error('This calendar does not support deleting events.')
         : err;
     }
-  }, [selectedEvent, deleteEvent, refetchEventsForWeek, visibleWeekStart, handleCloseModal]);
+  }, [selectedEvent, deleteEvent, refetchEventsForRange, visibleRange, handleCloseModal]);
 
   const handleEventReschedule = useCallback(async (event: CalendarEvent, newDate: string, newHour: number) => {
     try {
@@ -415,11 +450,11 @@ export function App() {
         }
       }
 
-      await refetchEventsForWeek(visibleWeekStart);
+      await refetchEventsForRange(visibleRange);
     } catch (err) {
       console.error('Failed to reschedule event:', err);
     }
-  }, [updateEvent, deleteEvent, createEvent, refetchEventsForWeek, visibleWeekStart]);
+  }, [updateEvent, deleteEvent, createEvent, refetchEventsForRange, visibleRange]);
 
   const handleAddEvent = useCallback(() => {
     setSelectedEvent(null);
@@ -703,15 +738,30 @@ export function App() {
             {/* Calendar Body — two-column on desktop */}
             <div className="beacon-body beacon-body--two-col">
               <div className="beacon-body-calendar">
-                <WeekCalendar
-                  events={events}
-                  hiddenCalendars={hiddenCalendars}
-                  onEventClick={handleEventClick}
-                  onSlotClick={handleSlotClick}
-                  onEventReschedule={handleEventReschedule}
-                  onVisibleWeekChange={setVisibleWeekStart}
-                  weekStartsOn={settings.weekStartsOn}
-                />
+                {calendarMode === 'month' ? (
+                  <MonthCalendar
+                    events={events}
+                    hiddenCalendars={hiddenCalendars}
+                    onEventClick={handleEventClick}
+                    onDayClick={(date) => handleSlotClick(date, 9)}
+                    onOpenWeek={handleOpenWeekFromMonth}
+                    onVisibleRangeChange={handleVisibleRangeChange}
+                    weekStartsOn={settings.weekStartsOn}
+                    headerExtra={<CalendarModeToggle mode={calendarMode} onChange={setCalendarMode} />}
+                  />
+                ) : (
+                  <WeekCalendar
+                    events={events}
+                    hiddenCalendars={hiddenCalendars}
+                    onEventClick={handleEventClick}
+                    onSlotClick={handleSlotClick}
+                    onEventReschedule={handleEventReschedule}
+                    onVisibleWeekChange={setVisibleWeekStart}
+                    weekStartsOn={settings.weekStartsOn}
+                    initialDate={weekViewDate}
+                    headerExtra={<CalendarModeToggle mode={calendarMode} onChange={setCalendarMode} />}
+                  />
+                )}
               </div>
               <CalendarSidebar
                 events={visibleEvents}
