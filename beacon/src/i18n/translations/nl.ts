@@ -113,6 +113,15 @@ export const nl: Record<TranslationKey, string> = {
   'weekCalendar.nextDays': 'Volgende dagen',
   'weekCalendar.dayGroup': 'Dagengroep {n}',
   'weekCalendar.addEventOnAt': 'Afspraak toevoegen op {day} om {time}',
+  'calendarMode.label': 'Kalenderweergave',
+  'calendarMode.week': 'Week',
+  'calendarMode.month': 'Maand',
+  'monthCalendar.previousMonth': 'Vorige maand',
+  'monthCalendar.nextMonth': 'Volgende maand',
+  'monthCalendar.jumpToCurrentMonth': 'Naar huidige maand',
+  'monthCalendar.more': '+{n} meer',
+  'monthCalendar.addEventOn': 'Afspraak toevoegen op {date}',
+  'monthCalendar.openWeek': 'Week van {date} openen',
 
   // ---- event modal ----
   'eventModal.editTitle': 'Afspraakgegevens',

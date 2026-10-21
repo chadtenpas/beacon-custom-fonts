@@ -118,6 +118,15 @@ export const en = {
   'weekCalendar.nextDays': 'Next days',
   'weekCalendar.dayGroup': 'Day group {n}',
   'weekCalendar.addEventOnAt': 'Add event on {day} at {time}',
+  'calendarMode.label': 'Calendar view',
+  'calendarMode.week': 'Week',
+  'calendarMode.month': 'Month',
+  'monthCalendar.previousMonth': 'Previous month',
+  'monthCalendar.nextMonth': 'Next month',
+  'monthCalendar.jumpToCurrentMonth': 'Jump to current month',
+  'monthCalendar.more': '+{n} more',
+  'monthCalendar.addEventOn': 'Add event on {date}',
+  'monthCalendar.openWeek': 'Open week of {date}',
 
   // ---- event modal ----
   'eventModal.editTitle': 'Event Details',

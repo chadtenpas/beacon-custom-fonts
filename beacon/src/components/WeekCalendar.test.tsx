@@ -63,4 +63,20 @@ describe('WeekCalendar weekStartsOn', () => {
     rerenderWith(1);
     expect(lastReportedDay(onVisibleWeekChange)).toBe('2026-09-21');
   });
+
+  it('opens on the week containing initialDate when given', () => {
+    const onVisibleWeekChange = vi.fn();
+    render(
+      <WeekCalendar
+        events={[]}
+        hiddenCalendars={new Set<string>()}
+        onEventClick={vi.fn()}
+        onSlotClick={vi.fn()}
+        onVisibleWeekChange={onVisibleWeekChange}
+        weekStartsOn={0}
+        initialDate={new Date('2026-10-15T00:00:00')}
+      />,
+    );
+    expect(lastReportedDay(onVisibleWeekChange)).toBe('2026-10-11');
+  });
 });

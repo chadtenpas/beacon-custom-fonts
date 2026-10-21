@@ -113,6 +113,15 @@ export const fr: Record<TranslationKey, string> = {
   'weekCalendar.nextDays': 'Jours suivants',
   'weekCalendar.dayGroup': 'Groupe de jours {n}',
   'weekCalendar.addEventOnAt': 'Ajouter un événement le {day} à {time}',
+  'calendarMode.label': 'Affichage du calendrier',
+  'calendarMode.week': 'Semaine',
+  'calendarMode.month': 'Mois',
+  'monthCalendar.previousMonth': 'Mois précédent',
+  'monthCalendar.nextMonth': 'Mois suivant',
+  'monthCalendar.jumpToCurrentMonth': 'Aller au mois actuel',
+  'monthCalendar.more': '+{n} de plus',
+  'monthCalendar.addEventOn': 'Ajouter un événement le {date}',
+  'monthCalendar.openWeek': 'Ouvrir la semaine du {date}',
 
   // ---- event modal ----
   'eventModal.editTitle': "Détails de l'événement",
