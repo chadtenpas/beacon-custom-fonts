@@ -26,6 +26,10 @@ interface WeekCalendarProps {
   onEventReschedule?: (event: CalendarEvent, newDate: string, newHour: number) => void;
   onVisibleWeekChange?: (weekStart: Date) => void;
   weekStartsOn: 0 | 1;
+  /** Open on the week containing this date instead of the current week. */
+  initialDate?: Date;
+  /** Extra controls rendered at the right of the header (the view toggle). */
+  headerExtra?: React.ReactNode;
 }
 
 const START_HOUR = 7;
@@ -69,7 +73,7 @@ interface MultiDaySpan {
   lane: number;
 }
 
-export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn }: WeekCalendarProps) {
+export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, initialDate, headerExtra }: WeekCalendarProps) {
   const today = new Date();
   const todayWeekStart = startOfWeek(today, { weekStartsOn });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -78,7 +82,11 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
   const { t, dateLocale } = useTranslation();
 
   // Week navigation: offset in weeks from today's week (0 = current, +1 = next, -1 = prev)
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [weekOffset, setWeekOffset] = useState(() =>
+    initialDate
+      ? Math.round(differenceInCalendarDays(startOfWeek(initialDate, { weekStartsOn }), todayWeekStart) / 7)
+      : 0,
+  );
   const weekStart = useMemo(
     () => startOfWeek(addWeeks(today, weekOffset), { weekStartsOn }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,12 +108,19 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
   const [expandedAnchor, setExpandedAnchor] = useState<DOMRect | null>(null);
 
   // Mobile 3-day view: which group of days to show (0-based index into day groups)
-  const todayDayIndex = differenceInCalendarDays(today, todayWeekStart);
-  const initialGroup = Math.min(Math.floor(todayDayIndex / MOBILE_DAYS), Math.floor(6 / MOBILE_DAYS));
+  const focusDay = initialDate ?? today;
+  const focusDayIndex = differenceInCalendarDays(focusDay, startOfWeek(focusDay, { weekStartsOn }));
+  const initialGroup = Math.min(Math.floor(focusDayIndex / MOBILE_DAYS), Math.floor(6 / MOBILE_DAYS));
   const [mobileGroupIndex, setMobileGroupIndex] = useState(initialGroup);
 
   // When jumping to a different week, reset to the first mobile day-group
+  // (skipped on first render so an initialDate's day group is kept)
+  const isFirstWeekOffsetRun = useRef(true);
   useEffect(() => {
+    if (isFirstWeekOffsetRun.current) {
+      isFirstWeekOffsetRun.current = false;
+      return;
+    }
     if (weekOffset !== 0) setMobileGroupIndex(0);
   }, [weekOffset]);
 
@@ -468,6 +483,7 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
             +4w
           </button>
         </div>
+        {headerExtra}
       </div>
 
       {/* Mobile day group navigation dots */}
