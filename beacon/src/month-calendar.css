@@ -1,0 +1,230 @@
+/* ============================================================
+   Month calendar view + Week/Month toggle (fork addition)
+   Reuses .week-calendar / .week-nav from beacon.css for the frame
+   and header so both views look the same.
+   ============================================================ */
+
+/* --- Week | Month toggle --- */
+.calendar-mode-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.calendar-mode-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.calendar-mode-btn + .calendar-mode-btn {
+  border-left: 1px solid var(--border-subtle);
+}
+
+.calendar-mode-btn:not(.calendar-mode-btn--active):hover {
+  background: var(--bg-hover);
+}
+
+.calendar-mode-btn--active {
+  background: color-mix(in srgb, var(--accent, #3b82f6) 15%, transparent);
+  color: var(--accent, #3b82f6);
+  font-weight: 600;
+}
+
+/* --- Weekday names row --- */
+.month-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.month-weekday {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+/* --- Day grid --- */
+.month-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.month-day {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 4px;
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow: hidden;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.month-day:nth-child(7n) {
+  border-right: none;
+}
+
+.month-day:hover {
+  background: var(--bg-hover);
+}
+
+.month-day--outside {
+  background: color-mix(in srgb, var(--text-muted) 6%, transparent);
+}
+
+.month-day--today {
+  background: var(--bg-today);
+}
+
+.month-day-number {
+  align-self: flex-start;
+  flex-shrink: 0;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.month-day-number:hover {
+  background: color-mix(in srgb, var(--accent, #3b82f6) 12%, transparent);
+}
+
+.month-day--outside .month-day-number {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.month-day--today .month-day-number {
+  background: var(--color-blue-full, var(--accent, #3b82f6));
+  color: #ffffff;
+}
+
+.month-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+}
+
+/* --- Events inside a day --- */
+.month-event {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 19px;
+  padding: 0 4px;
+  border: none;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 19px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.month-event:hover {
+  filter: brightness(0.96);
+  background-color: color-mix(in srgb, var(--text-muted) 10%, transparent);
+}
+
+/* All-day and multi-day events: filled pastel chip with a color stripe.
+   Pastels are light, so keep the text dark in every theme. */
+.month-event--allday {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.month-event-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.month-event-time {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+}
+
+.month-event-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.month-event--past {
+  opacity: 0.55;
+}
+
+.month-day-more {
+  align-self: flex-start;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 17px;
+  cursor: pointer;
+}
+
+.month-day-more:hover {
+  color: var(--accent, #3b82f6);
+}
+
+/* --- Small screens --- */
+@media (max-width: 600px) {
+  .month-event-time {
+    display: none;
+  }
+  .month-event {
+    font-size: 0.7rem;
+    padding: 0 2px;
+  }
+  .month-day {
+    padding: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-mode-btn {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}

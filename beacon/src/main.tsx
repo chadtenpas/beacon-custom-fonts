@@ -13,6 +13,7 @@ import './styles/widgets.css';
 import './styles/omni-add.css';
 import './styles/settings.css';
 import './styles/weather.css';
+import './styles/month-calendar.css';
 import './styles/focus.css';
 import { initNativeBridge } from './native';
 import { applyStoredTheme } from './hooks/useTheme';
