@@ -2141,3 +2141,11 @@ a:focus:not(:focus-visible) {
   --font-display: 'Nunito', sans-serif !important;
   --font-body: 'Nunito', sans-serif !important;
 }
+.sidebar-logo img { display: none !important; }
+.sidebar-logo::after {
+  content: 'ACE';
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--accent);
+}
