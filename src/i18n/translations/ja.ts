@@ -113,6 +113,15 @@ export const ja: Record<TranslationKey, string> = {
   'weekCalendar.nextDays': '次の日々',
   'weekCalendar.dayGroup': '日付グループ{n}',
   'weekCalendar.addEventOnAt': '{day}の{time}に予定を追加',
+  'calendarMode.label': 'カレンダー表示',
+  'calendarMode.week': '週',
+  'calendarMode.month': '月',
+  'monthCalendar.previousMonth': '前の月',
+  'monthCalendar.nextMonth': '次の月',
+  'monthCalendar.jumpToCurrentMonth': '今月に移動',
+  'monthCalendar.more': '他{n}件',
+  'monthCalendar.addEventOn': '{date}に予定を追加',
+  'monthCalendar.openWeek': '{date}の週を開く',
 
   // ---- event modal ----
   'eventModal.editTitle': '予定の詳細',

@@ -113,6 +113,15 @@ export const ko: Record<TranslationKey, string> = {
   'weekCalendar.nextDays': '다음 날짜',
   'weekCalendar.dayGroup': '날짜 그룹 {n}',
   'weekCalendar.addEventOnAt': '{day} {time}에 일정 추가',
+  'calendarMode.label': '캘린더 보기',
+  'calendarMode.week': '주',
+  'calendarMode.month': '월',
+  'monthCalendar.previousMonth': '이전 달',
+  'monthCalendar.nextMonth': '다음 달',
+  'monthCalendar.jumpToCurrentMonth': '이번 달로 이동',
+  'monthCalendar.more': '+{n}개 더',
+  'monthCalendar.addEventOn': '{date}에 일정 추가',
+  'monthCalendar.openWeek': '{date} 주 열기',
 
   // ---- event modal ----
   'eventModal.editTitle': '일정 세부정보',
